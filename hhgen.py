@@ -6,9 +6,9 @@ import numpy as np
 import os
 import time
 
-# os.chdir("/Users/michal/Desktop/wwogen/")
+os.chdir("/Users/michal/Desktop/hhgen/")
 
-text = open('lona.txt').read()
+text = open('cleaned.txt').read()
 print ('Length of text: {} characters'.format(len(text)))
 
 # Taking a look at the text
@@ -38,13 +38,13 @@ examples_per_epoch = len(text)//(seq_length+1)
 # Create training examples / targets
 char_dataset = tf.data.Dataset.from_tensor_slices(text_as_int)
 
-for i in char_dataset.take(5):
-  print(index2char[i.numpy()])
+# for i in char_dataset.take(5):
+#   print(index2char[i.numpy()])
 
 sequences = char_dataset.batch(seq_length+1, drop_remainder=True)
 
-for item in sequences.take(5):
-  print(repr(''.join(index2char[item.numpy()])))
+# for item in sequences.take(5):
+#   print(repr(''.join(index2char[item.numpy()])))
 
 def split_input_target(chunk):
     input_text = chunk[:-1]
@@ -101,6 +101,7 @@ model = build_model(
   batch_size=BATCH_SIZE)
 
 model.summary()
+
 
 def loss(labels, logits):
   return tf.keras.losses.sparse_categorical_crossentropy(labels, logits, from_logits=True)
@@ -169,4 +170,6 @@ def generate_text(model, start_string):
 
   return (start_string + ''.join(text_generated))
 
-print(generate_text(model, start_string=u"Szach "))
+print(generate_text(model, start_string=u"no ale "))
+
+model.save("./generated_models/ultimate.h5")
