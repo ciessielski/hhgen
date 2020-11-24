@@ -6,10 +6,13 @@ import numpy as np
 import os
 import time
 
-os.chdir("/Users/michal/Desktop/hhgen/")
+#os.chdir("/Users/michal/Desktop/hhgen/")
 
 text = open('cleaned.txt').read()
 print ('Length of text: {} characters'.format(len(text)))
+
+# text = text[:10000]
+
 
 # Taking a look at the text
 print(text[:300])
@@ -37,6 +40,9 @@ examples_per_epoch = len(text)//(seq_length+1)
 
 # Create training examples / targets
 char_dataset = tf.data.Dataset.from_tensor_slices(text_as_int)
+
+strategy = tf.distribute.MirroredStrategy()
+
 
 # for i in char_dataset.take(5):
 #   print(index2char[i.numpy()])
@@ -79,20 +85,23 @@ rnn_units=[rnn_units1, rnn_units2]
 print(vocab_size)
 
 def build_model(vocab_size, embedding_dim, rnn_units, batch_size):
-  model = tf.keras.Sequential([
-    tf.keras.layers.Embedding(vocab_size, embedding_dim,
-                              batch_input_shape=[batch_size, None]),
-    tf.keras.layers.GRU(rnn_units1,
-                        return_sequences=True,
-                        stateful=True,
-                        recurrent_initializer='glorot_uniform'),
-    tf.keras.layers.GRU(rnn_units2,
-                        return_sequences=True,
-                        stateful=True,
-                        recurrent_initializer='glorot_uniform'),
-    tf.keras.layers.Dense(vocab_size)
-  ])
-  return model
+
+    # with strategy.scope():
+      model = tf.keras.Sequential([
+        tf.keras.layers.Embedding(vocab_size, embedding_dim,
+                                  batch_input_shape=[batch_size, None]),
+        tf.keras.layers.GRU(rnn_units1,
+                            return_sequences=True,
+                            stateful=True,
+                            recurrent_initializer='glorot_uniform'),
+        tf.keras.layers.GRU(rnn_units2,
+                            return_sequences=True,
+                            stateful=True,
+                            recurrent_initializer='glorot_uniform'),
+        tf.keras.layers.Dense(vocab_size)
+      ])
+
+      return model
 
 model = build_model(
   vocab_size = vocab_size,
@@ -117,7 +126,7 @@ checkpoint_callback=tf.keras.callbacks.ModelCheckpoint(
     filepath=checkpoint_prefix,
     save_weights_only=True)
 
-EPOCHS=50
+EPOCHS=500
 
 history = model.fit(dataset, epochs=EPOCHS, callbacks=[checkpoint_callback])
 
@@ -135,7 +144,7 @@ model.summary()
 def generate_text(model, start_string):
 
   # Number of characters to generate
-  num_generate = 500
+  num_generate =500
 
   # Converting our start string to numbers (vectorizing)
   input_eval = [char2index[s] for s in start_string]
@@ -172,4 +181,4 @@ def generate_text(model, start_string):
 
 print(generate_text(model, start_string=u"no ale "))
 
-model.save("./generated_models/ultimate.h5")
+model.save("./generated_models/ultimate500.h5")
