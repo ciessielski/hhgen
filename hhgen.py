@@ -8,7 +8,7 @@ import time
 
 #os.chdir("/Users/michal/Desktop/hhgen/")
 
-text = open('cleaned.txt').read()
+text = open('RimbaudXSokółPono.txt').read()
 print ('Length of text: {} characters'.format(len(text)))
 
 # text = text[:10000]
@@ -126,7 +126,7 @@ checkpoint_callback=tf.keras.callbacks.ModelCheckpoint(
     filepath=checkpoint_prefix,
     save_weights_only=True)
 
-EPOCHS=500
+EPOCHS = 200
 
 history = model.fit(dataset, epochs=EPOCHS, callbacks=[checkpoint_callback])
 
@@ -144,7 +144,7 @@ model.summary()
 def generate_text(model, start_string):
 
   # Number of characters to generate
-  num_generate =500
+  num_generate = 250
 
   # Converting our start string to numbers (vectorizing)
   input_eval = [char2index[s] for s in start_string]
@@ -181,4 +181,4 @@ def generate_text(model, start_string):
 
 print(generate_text(model, start_string=u"no ale "))
 
-model.save("./generated_models/ultimate500.h5")
+model.save("./generated_models/RimbaudXSokółPono_GRU_250.h5")
